@@ -17,11 +17,29 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from main.views import CategoryListView, PostsViewSet, PostImageView, UpdateDeleteComment, CreateComment, \
+    RatingViewSet, FavoriteViewSet, LikeViewSet
+from .yasg import urlpatterns as doc_urls
+
+
+router = DefaultRouter()
+router.register('posts',PostsViewSet)
+router.register('likes', LikeViewSet)
+router.register('ratings', RatingViewSet)
+router.register('favorites', FavoriteViewSet)
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('v1/api/account/',include('account.urls')),
+    path('v1/api/categories/',CategoryListView.as_view()),
+    path('v1/api/add-image/',PostImageView.as_view()),
+    path('v1/api/',include(router.urls)),
+    path('v1/api/add-comment/', CreateComment.as_view()),
+    path('v1/api/comments/<int:pk>/',UpdateDeleteComment.as_view()),
 ]
+urlpatterns += doc_urls
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)

@@ -51,6 +51,12 @@ class MyUser(AbstractUser):
         self.activation_code = activation_code
 
 
+    def create_activation_coder(self):
+        from django.utils.crypto import get_random_string
+        code = get_random_string(8, '1236549')
+        self.activation_code = code
+        self.save()
+
 # Gender = (
 #     ('female', 'female'),
 #     ('male', 'male'),

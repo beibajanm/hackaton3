@@ -8,7 +8,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from account.serializers import RegisterSerializer, LoginSerializer
+from account.serializers import RegisterSerializer, LoginSerializer,ForgotPasswordSerializer,ForgotPasswordCompleteSerializer
 
 
 class RegisterView(APIView):
@@ -17,7 +17,7 @@ class RegisterView(APIView):
         serializer = RegisterSerializer(data=data)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
-            return Response('Вы успешно зарегистрировались',status=status.HTTP_201_CREATED)
+            return Response('Вы успешно зарегистрировались,На вашу электронную почту выслано сообщение!',status=status.HTTP_201_CREATED)
 
 
 class ActivateView(APIView):
@@ -41,3 +41,21 @@ class LogoutView(APIView):
         user = request.user
         Token.objects.filter(user=user).delete()
         return Response('Вы успешно разлогинились',status=status.HTTP_200_OK)
+
+
+class ForgotPasswordView(APIView):
+    def post(self, request):
+        data = request.data
+        serializer = ForgotPasswordSerializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        serializer.send_reset_email()
+        return Response('Вам выслан код подтверждения')
+
+
+class ForgotPasswordCompleteView(APIView):
+    def post(self, request):
+        data = request.data
+        serializer = ForgotPasswordCompleteSerializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        serializer.set_new_pass()
+        return Response('Вы успешно восстановили пароль!')
